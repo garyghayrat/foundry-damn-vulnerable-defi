@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import "forge-std/Script.sol";
 import "../src/unstoppable/ReceiverUnstoppable.sol";
 import "../src/unstoppable/UnstoppableLender.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import "../src/DamnValuableToken.sol";
 
 contract UnstoppableScript is Script {
     ReceiverUnstoppable receiverUnstoppable;
@@ -21,7 +21,15 @@ contract UnstoppableScript is Script {
 
     function run() public {
         vm.startBroadcast();
-        receiverUnstoppable = new ReceiverUnstoppable;
-        unstoppableLender = new UnstoppableLender;
+        receiverUnstoppable = new ReceiverUnstoppable();
+        token = new DamnValuableToken();
+        unstoppableLender = new UnstoppableLender(address(token));
+
+        token.mint(TOKENS_IN_POOL);
+        token.approve(unstoppableLender, TOKENS_IN_POOL);
+        unstoppableLender.depositTokens(TOKENS_IN_POOL);
+        token.transfer(attacker, INITIAL_ATTACKER_TOKEN_BALANCE);
+
+        vm.stopBroadcast();
     }
 }
