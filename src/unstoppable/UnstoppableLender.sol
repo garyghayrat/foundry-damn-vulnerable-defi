@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 
 interface IReceiver {
     function receiveTokens(address tokenAddress, uint256 amount) external;
@@ -14,7 +14,6 @@ interface IReceiver {
  * @author Damn Vulnerable DeFi (https://damnvulnerabledefi.xyz)
  */
 contract UnstoppableLender is ReentrancyGuard {
-
     IERC20 public immutable damnValuableToken;
     uint256 public poolBalance;
 
@@ -38,12 +37,18 @@ contract UnstoppableLender is ReentrancyGuard {
 
         // Ensured by the protocol via the `depositTokens` function
         assert(poolBalance == balanceBefore);
-        
+
         damnValuableToken.transfer(msg.sender, borrowAmount);
-        
-        IReceiver(msg.sender).receiveTokens(address(damnValuableToken), borrowAmount);
-        
+
+        IReceiver(msg.sender).receiveTokens(
+            address(damnValuableToken),
+            borrowAmount
+        );
+
         uint256 balanceAfter = damnValuableToken.balanceOf(address(this));
-        require(balanceAfter >= balanceBefore, "Flash loan hasn't been paid back");
+        require(
+            balanceAfter >= balanceBefore,
+            "Flash loan hasn't been paid back"
+        );
     }
 }
